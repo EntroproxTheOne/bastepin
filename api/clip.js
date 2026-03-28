@@ -30,7 +30,6 @@ module.exports = async function handler(req, res) {
 
 
   const token = process.env.BLOB_READ_WRITE_TOKEN;
-  const blobAccess = (process.env.CLIPBOARD_BLOB_ACCESS || 'private').toLowerCase(); // 'private' or 'public'
   const useBlob = !!(token && put && list);
 
   // ── GET /api/clip?slot=N ──────────────────────────────────────────────────
@@ -40,24 +39,14 @@ module.exports = async function handler(req, res) {
 
     if (useBlob) {
       try {
-        const { blobs } = await list({ prefix: slotPath(slot), access: blobAccess, token });
+        const { blobs } = await list({ prefix: slotPath(slot), access: 'public', token });
         if (!blobs.length) return res.status(200).json({ text: '' });
 
-        if (blobAccess === 'public') {
-          // Public blobs: fetch without auth header
-          const fetchRes = await fetch(blobs[0].url);
-          if (!fetchRes.ok) return res.status(200).json({ text: '' });
-          const text = await fetchRes.text();
-          return res.status(200).json({ text });
-        } else {
-          // Private blobs: fetch with auth header
-          const fetchRes = await fetch(blobs[0].url, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!fetchRes.ok) return res.status(200).json({ text: '' });
-          const text = await fetchRes.text();
-          return res.status(200).json({ text });
-        }
+        // Always fetch public blobs without auth header
+        const fetchRes = await fetch(blobs[0].url);
+        if (!fetchRes.ok) return res.status(200).json({ text: '' });
+        const text = await fetchRes.text();
+        return res.status(200).json({ text });
       } catch (e) {
         return res.status(502).json({ error: e.message });
       }
@@ -84,7 +73,7 @@ module.exports = async function handler(req, res) {
     if (useBlob) {
       try {
         await put(slotPath(cleanSlot), text, {
-          access: blobAccess,
+          access: 'public',
           contentType: 'text/plain; charset=utf-8',
           allowOverwrite: true,
           addRandomSuffix: false,
