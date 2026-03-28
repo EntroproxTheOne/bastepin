@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimpleCopyBot</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f13;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 680px;
+      background: #1a1a24;
+      border: 1px solid #2d2d40;
+      border-radius: 14px;
+      padding: 32px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span { color: #818cf8; }
+
+    .slot-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .slot-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 8px 12px;
+      border: 1px solid #2d2d40;
+      border-radius: 8px;
+      background: #12121a;
+      color: #94a3b8;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .slot-btn:hover { border-color: #6366f1; color: #c7d2fe; }
+    .slot-btn.active { border-color: #6366f1; background: #1e1b4b; color: #a5b4fc; font-weight: 600; }
+
+    textarea {
+      width: 100%;
+      height: 260px;
+      background: #12121a;
+      border: 1px solid #2d2d40;
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      padding: 16px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.6;
+    }
+
+    textarea:focus { border-color: #6366f1; }
+    textarea::placeholder { color: #4a4a6a; }
+
+    .char-count {
+      font-size: 0.75rem;
+      color: #4a4a6a;
+      text-align: right;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+    }
+
+    .btn-save:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-save:active { transform: translateY(0); }
+
+    .btn-load {
+      background: #1e1b4b;
+      color: #a5b4fc;
+      border: 1px solid #3730a3;
+    }
+
+    .btn-load:hover { background: #2a2560; }
+
+    .btn-copy {
+      background: #1a2a1a;
+      color: #86efac;
+      border: 1px solid #166534;
+    }
+
+    .btn-copy:hover { background: #1f381f; }
+
+    .btn-clear {
+      background: #1a1214;
+      color: #f87171;
+      border: 1px solid #7f1d1d;
+      flex: 0 0 auto;
+      padding: 12px 16px;
+    }
+
+    .btn-clear:hover { background: #2a1515; }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e1b4b;
+      border: 1px solid #4338ca;
+      color: #c7d2fe;
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
+      opacity: 0;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: #2a1515;
+      border-color: #991b1b;
+      color: #fca5a5;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 14px;
+      font-size: 0.78rem;
+      color: #4a4a6a;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4a4a6a;
+    }
+
+    .dot.online { background: #22c55e; }
+    .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+    .dot.error { background: #ef4444; }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <header>
+    <div class="logo">📋</div>
+    <div>
+      <h1>Simple<span>CopyBot</span></h1>
+    </div>
+  </header>
+
+  <div class="slot-row" id="slotRow">
+    <button class="slot-btn active" data-slot="1">Slot 1</button>
+    <button class="slot-btn" data-slot="2">Slot 2</button>
+    <button class="slot-btn" data-slot="3">Slot 3</button>
+    <button class="slot-btn" data-slot="4">Slot 4</button>
+    <button class="slot-btn" data-slot="5">Slot 5</button>
+  </div>
+
+  <div class="status-bar">
+    <div class="dot" id="dot"></div>
+    <span id="statusText">Ready</span>
+  </div>
+
+  <textarea id="content" placeholder="Paste your text here, then click Save. On another device, click Load to retrieve it."></textarea>
+
+  <div class="char-count" id="charCount">0 characters</div>
+
+  <div class="btn-row">
+    <button class="btn-save" id="btnSave" onclick="saveClip()">
+      <span>💾</span> Save
+    </button>
+    <button class="btn-load" id="btnLoad" onclick="loadClip()">
+      <span>⬇️</span> Load
+    </button>
+    <button class="btn-copy" id="btnCopy" onclick="copyToClipboard()">
+      <span>📄</span> Copy
+    </button>
+    <button class="btn-clear" onclick="clearContent()" title="Clear">✕</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentSlot = 1;
+
+  const textarea = document.getElementById('content');
+  const charCount = document.getElementById('charCount');
+  const dot = document.getElementById('dot');
+  const statusText = document.getElementById('statusText');
+  const toast = document.getElementById('toast');
+
+  // Slot switching
+  document.getElementById('slotRow').addEventListener('click', e => {
+    const btn = e.target.closest('[data-slot]');
+    if (!btn) return;
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSlot = btn.dataset.slot;
+    textarea.value = '';
+    updateCount();
+    setStatus('ready');
+  });
+
+  textarea.addEventListener('input', updateCount);
+
+  function updateCount() {
+    const n = textarea.value.length;
+    charCount.textContent = n.toLocaleString() + ' character' + (n !== 1 ? 's' : '');
+  }
+
+  function setStatus(state, msg) {
+    dot.className = 'dot';
+    if (state === 'loading') { dot.classList.add('loading'); statusText.textContent = msg || 'Working…'; }
+    else if (state === 'online') { dot.classList.add('online'); statusText.textContent = msg || 'Done'; }
+    else if (state === 'error') { dot.classList.add('error'); statusText.textContent = msg || 'Error'; }
+    else { statusText.textContent = msg || 'Ready'; }
+  }
+
+  let toastTimer;
+  function showToast(msg, isError = false) {
+    clearTimeout(toastTimer);
+    toast.textContent = msg;
+    toast.className = 'toast' + (isError ? ' error' : '');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => toast.classList.add('show'));
+    });
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function setLoading(id, loading) {
+    const btn = document.getElementById(id);
+    if (loading) {
+      btn._orig = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = btn._orig || btn.innerHTML;
+      btn.disabled = false;
+    }
+  }
+
+  async function saveClip() {
+    const text = textarea.value;
+    if (!text.trim()) { showToast('Nothing to save.', true); return; }
+    setLoading('btnSave', true);
+    setStatus('loading', 'Saving…');
+    try {
+      const res = await fetch('/api/clip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot: currentSlot, text })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setStatus('online', 'Saved to slot ' + currentSlot);
+      showToast('✅ Saved to slot ' + currentSlot);
+    } catch (e) {
+      setStatus('error', 'Save failed');
+      showToast('Save failed: ' + e.message, true);
+    } finally {
+      setLoading('btnSave', false);
+    }
+  }
+
+  async function loadClip() {
+    setLoading('btnLoad', true);
+    setStatus('loading', 'Loading…');
+    try {
+      const res = await fetch('/api/clip?slot=' + encodeURIComponent(currentSlot));
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      textarea.value = data.text || '';
+      updateCount();
+      setStatus('online', 'Loaded slot ' + currentSlot);
+      showToast(data.text ? '✅ Loaded slot ' + currentSlot : 'Slot ' + currentSlot + ' is empty');
+    } catch (e) {
+      setStatus('error', 'Load failed');
+      showToast('Load failed: ' + e.message, true);
+    } finally {
+      setLoading('btnLoad', false);
+    }
+  }
+
+  async function copyToClipboard() {
+    const text = textarea.value;
+    if (!text) { showToast('Nothing to copy.', true); return; }
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('📄 Copied to clipboard!');
+    } catch {
+      showToast('Could not access clipboard.', true);
+    }
+  }
+
+  function clearContent() {
+    textarea.value = '';
+    updateCount();
+    setStatus('ready');
+  }
+</script>
+</body>
+</html>

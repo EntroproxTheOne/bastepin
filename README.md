@@ -1,0 +1,62 @@
+# SimpleCopyBot
+
+A minimal remote clipboard — paste text on one device, retrieve it on another. No login required.
+
+## Deploy to Vercel (2 minutes)
+
+### 1. Push to GitHub
+
+```bash
+git init
+git add .
+git commit -m "init"
+# create a repo on github.com, then:
+git remote add origin https://github.com/YOUR_USER/simplecopybot.git
+git push -u origin main
+```
+
+### 2. Import on Vercel
+
+Go to [vercel.com/new](https://vercel.com/new), import the repo, click **Deploy**.
+
+### 3. Add a KV Store (for persistent storage)
+
+1. In your Vercel project → **Storage** tab → **Create KV Database** → give it any name → **Create**.
+2. Vercel automatically injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` into your project's env vars.
+3. **Redeploy** the project once (just click "Redeploy" in the Deployments tab).
+
+That's it — your clipboard is live.
+
+## Usage
+
+| Action | How |
+|--------|-----|
+| Save text | Paste in the box → click **Save** |
+| Retrieve on another device | Open the URL → pick the same slot → click **Load** |
+| Copy to local clipboard | Click **Copy** |
+| Multiple clipboards | Use Slots 1-5 |
+
+## Structure
+
+```
+simplecopybot/
+├── index.html       ← the entire frontend (single page)
+├── api/
+│   └── clip.js      ← serverless API (GET + POST)
+├── vercel.json      ← routing config
+├── package.json
+└── .gitignore
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `KV_REST_API_URL` | Auto-set when you link a Vercel KV store |
+| `KV_REST_API_TOKEN` | Auto-set when you link a Vercel KV store |
+
+## Limits
+
+- 512 KB max per slot (adjustable via `MAX_BYTES` in `api/clip.js`)
+- 5 slots (slots 1–20 are all valid via API)
+- Vercel KV free tier: 256 MB storage, 3,000 req/day — plenty for personal use
