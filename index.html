@@ -139,16 +139,201 @@
       border: 1px solid #3730a3;
     }
 
-    .btn-load:hover { background: #2a2560; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #008080;
+      color: #222;
+      font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif;
+      padding: 24px;
+    }
+      border: 1px solid #7f1d1d;
+    .card {
+      width: 100%;
+      max-width: 600px;
+      background: #c0c0c0;
+      border: 2px solid #fff;
+      border-bottom-color: #808080;
+      border-right-color: #808080;
+      box-shadow: 2px 2px 0 #0008;
+      padding: 0;
+    }
+      transform: none !important;
+    .titlebar {
+      background: linear-gradient(to bottom, #000080 90%, #3a6ea5 100%);
+      color: #fff;
+      font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #808080;
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+    }
+    .titlebar .logo {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      background: #fff;
+      border: 1px solid #808080;
+      display: inline-block;
+      vertical-align: middle;
+      border-radius: 2px;
+      text-align: center;
+      font-size: 13px;
+      color: #000080;
+      font-weight: bold;
+      line-height: 18px;
+    }
+
+    .titlebar .window-controls {
+      display: flex;
+      gap: 2px;
+    }
+    .titlebar .window-btn {
+      width: 18px;
+      height: 18px;
+      background: #c0c0c0;
+      border: 2px outset #fff;
+      color: #222;
+      font-size: 13px;
+      font-family: inherit;
+      padding: 0;
+      cursor: pointer;
+      line-height: 14px;
+      text-align: center;
+    }
+    .titlebar .window-btn:active {
+      border-style: inset;
+    }
+    .toast {
+    .notepad-menu {
+      background: #e0e0e0;
+      border-bottom: 1px solid #808080;
+      padding: 2px 0 2px 4px;
+      font-size: 0.95rem;
+      user-select: none;
+    }
+    .notepad-menu span {
+      margin-right: 18px;
+      color: #222;
+      cursor: default;
+    }
+      position: fixed;
+    .notepad-main {
+      padding: 16px 18px 10px 18px;
+    }
+      bottom: 28px;
+    .slot-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+      left: 50%;
+    .slot-btn, .btn-save, .btn-load, .btn-copy, .btn-clear, button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 2px 18px 2px 18px;
+      margin: 0 2px 0 0;
+      background: #e0e0e0;
+      border: 2px outset #fff;
+      color: #222;
+      border-radius: 0;
+      box-shadow: none;
+      cursor: pointer;
+      min-width: 60px;
+      min-height: 24px;
+      transition: none;
+    }
+    .slot-btn:active, .btn-save:active, .btn-load:active, .btn-copy:active, .btn-clear:active, button:active {
+      border-style: inset;
+    }
+    .slot-btn.active {
+      background: #c0c0c0;
+      border-style: inset;
+      color: #000;
+      font-weight: bold;
+    }
+      transform: translateX(-50%) translateY(80px);
+    textarea {
+      width: 100%;
+      height: 260px;
+      background: #fff;
+      border: 2px inset #808080;
+      color: #222;
+      font-size: 1rem;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 8px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    textarea:focus { border-color: #000080; }
+    textarea::placeholder { color: #888; }
+      background: #1e1b4b;
+    .char-count {
+      font-size: 0.75rem;
+      color: #4a4a6a;
+      text-align: right;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+      border: 1px solid #4338ca;
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+      color: #c7d2fe;
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+      padding: 10px 22px;
+    .btn-save {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+    }
+      border-radius: 50px;
+    .btn-save:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-save:active { transform: translateY(0); }
+      font-size: 0.85rem;
+    .btn-load {
+      background: #1e1b4b;
+      color: #a5b4fc;
+      border: 1px solid #3730a3;
+    }
+      font-weight: 500;
+    .btn-load:hover { background: #2a2560; }
+      pointer-events: none;
     .btn-copy {
       background: #1a2a1a;
       color: #86efac;
       border: 1px solid #166534;
     }
-
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
     .btn-copy:hover { background: #1f381f; }
-
+      opacity: 0;
     .btn-clear {
       background: #1a1214;
       color: #f87171;
@@ -156,42 +341,13 @@
       flex: 0 0 auto;
       padding: 12px 16px;
     }
-
+      white-space: nowrap;
     .btn-clear:hover { background: #2a1515; }
-
+    }
     button:disabled {
       opacity: 0.45;
       cursor: not-allowed;
       transform: none !important;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #1e1b4b;
-      border: 1px solid #4338ca;
-      color: #c7d2fe;
-      padding: 10px 22px;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      pointer-events: none;
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
-      opacity: 0;
-      white-space: nowrap;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    .toast.error {
-      background: #2a1515;
-      border-color: #991b1b;
-      color: #fca5a5;
     }
 
     .status-bar {
@@ -199,6 +355,75 @@
       align-items: center;
       gap: 7px;
       margin-bottom: 14px;
+      font-size: 0.78rem;
+      color: #4a4a6a;
+    }
+    .toast.show {
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4a4a6a;
+    }
+      transform: translateX(-50%) translateY(0);
+    .dot.online { background: #22c55e; }
+    .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+    .dot.error { background: #ef4444; }
+      opacity: 1;
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast.error {
+      background: #2a1515;
+      border-color: #991b1b;
+      color: #fca5a5;
+    }
+  <div class="titlebar">
+    <span><span class="logo">N</span>Untitled - Notepad</span>
+    <div class="window-controls">
+      <button class="window-btn" title="Minimize">&#8211;</button>
+      <button class="window-btn" title="Maximize">&#9723;</button>
+      <button class="window-btn" title="Close">&#10005;</button>
+    </div>
+  </div>
+  <div class="notepad-menu">
+    <span>File</span><span>Edit</span><span>Search</span><span>Help</span>
+  </div>
+  <div class="notepad-main">
+    <div class="slot-row" id="slotRow">
+      <button class="slot-btn active" data-slot="1">Slot 1</button>
+      <button class="slot-btn" data-slot="2">Slot 2</button>
+      <button class="slot-btn" data-slot="3">Slot 3</button>
+      <button class="slot-btn" data-slot="4">Slot 4</button>
+      <button class="slot-btn" data-slot="5">Slot 5</button>
+    </div>
+
+    <textarea id="content" placeholder="Paste your text here, then click Save. On another device, click Load to retrieve it."></textarea>
+
+    <div class="char-count" id="charCount">0 characters</div>
+
+    <div class="btn-row">
+      <button class="btn-save" id="btnSave" onclick="saveClip()">Save</button>
+      <button class="btn-load" id="btnLoad" onclick="loadClip()">Load</button>
+      <button class="btn-copy" id="btnCopy" onclick="copyToClipboard()">Copy</button>
+      <button class="btn-clear" onclick="clearContent()" title="Clear">Clear</button>
+    </div>
+    <div class="status-bar" style="margin-top:10px; font-size:0.92rem; color:#444;">
+      <span id="statusText">Ready</span>
+    </div>
+  </div>
       font-size: 0.78rem;
       color: #4a4a6a;
     }
