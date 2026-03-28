@@ -5,7 +5,7 @@
 //
 // Max content size: 512 KB per slot (adjustable via MAX_BYTES below).
 
-import { put, list, get } from '@vercel/blob';
+import { put, list } from '@vercel/blob';
 
 const MAX_BYTES = 512 * 1024; // 512 KB
 
@@ -35,11 +35,11 @@ export default async function handler(req, res) {
       const { blobs } = await list({ prefix: slotPath(slot) });
       if (!blobs.length) return res.status(200).json({ text: '' });
 
-      // Fetch the blob content via its URL (private blobs require the token)
-      const result = await get(blobs[0].url, { access: 'private' });
-      if (!result) return res.status(200).json({ text: '' });
+      // Public blobs are readable via their URL without any auth token
+      const fetchRes = await fetch(blobs[0].url);
+      if (!fetchRes.ok) return res.status(200).json({ text: '' });
 
-      const text = await new Response(result.stream).text();
+      const text = await fetchRes.text();
       return res.status(200).json({ text });
     } catch (e) {
       return res.status(502).json({ error: e.message });
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
 
     try {
       await put(slotPath(cleanSlot), text, {
-        access: 'private',
+        access: 'public',
         contentType: 'text/plain; charset=utf-8',
         allowOverwrite: true,
         addRandomSuffix: false,
