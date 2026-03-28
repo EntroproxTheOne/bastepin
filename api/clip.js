@@ -4,13 +4,20 @@
 //
 // Max content size: 512 KB per slot (adjustable via MAX_BYTES below).
 
-const { put, list } = require('@vercel/blob');
+
+let put, list;
+try {
+  ({ put, list } = require('@vercel/blob'));
+} catch {}
 
 const MAX_BYTES = 512 * 1024; // 512 KB
 
 function slotPath(slot) {
   return `clips/slot-${slot}.txt`;
 }
+
+// In-memory clipboard fallback (for local/dev only)
+const localClipboard = {};
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,30 +28,42 @@ module.exports = async function handler(req, res) {
     return res.status(204).end();
   }
 
+
   const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) {
-    return res.status(500).json({ error: 'Blob store not configured. Add BLOB_READ_WRITE_TOKEN environment variable.' });
-  }
+  const blobAccess = (process.env.CLIPBOARD_BLOB_ACCESS || 'private').toLowerCase(); // 'private' or 'public'
+  const useBlob = !!(token && put && list);
 
   // ── GET /api/clip?slot=N ──────────────────────────────────────────────────
   if (req.method === 'GET') {
     const slot = sanitizeSlot(req.query.slot);
     if (!slot) return res.status(400).json({ error: 'Invalid slot.' });
 
-    try {
-      const { blobs } = await list({ prefix: slotPath(slot), token });
-      if (!blobs.length) return res.status(200).json({ text: '' });
+    if (useBlob) {
+      try {
+        const { blobs } = await list({ prefix: slotPath(slot), access: blobAccess, token });
+        if (!blobs.length) return res.status(200).json({ text: '' });
 
-      // Download the blob content using the token in the Authorization header
-      const fetchRes = await fetch(blobs[0].url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!fetchRes.ok) return res.status(200).json({ text: '' });
-
-      const text = await fetchRes.text();
-      return res.status(200).json({ text });
-    } catch (e) {
-      return res.status(502).json({ error: e.message });
+        if (blobAccess === 'public') {
+          // Public blobs: fetch without auth header
+          const fetchRes = await fetch(blobs[0].url);
+          if (!fetchRes.ok) return res.status(200).json({ text: '' });
+          const text = await fetchRes.text();
+          return res.status(200).json({ text });
+        } else {
+          // Private blobs: fetch with auth header
+          const fetchRes = await fetch(blobs[0].url, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!fetchRes.ok) return res.status(200).json({ text: '' });
+          const text = await fetchRes.text();
+          return res.status(200).json({ text });
+        }
+      } catch (e) {
+        return res.status(502).json({ error: e.message });
+      }
+    } else {
+      // Local fallback
+      return res.status(200).json({ text: localClipboard[slot] || '' });
     }
   }
 
@@ -62,17 +81,23 @@ module.exports = async function handler(req, res) {
       return res.status(413).json({ error: `Content exceeds ${MAX_BYTES / 1024} KB limit.` });
     }
 
-    try {
-      await put(slotPath(cleanSlot), text, {
-        access: 'public',
-        contentType: 'text/plain; charset=utf-8',
-        allowOverwrite: true,
-        addRandomSuffix: false,
-        token,
-      });
+    if (useBlob) {
+      try {
+        await put(slotPath(cleanSlot), text, {
+          access: blobAccess,
+          contentType: 'text/plain; charset=utf-8',
+          allowOverwrite: true,
+          addRandomSuffix: false,
+          token,
+        });
+        return res.status(200).json({ ok: true });
+      } catch (e) {
+        return res.status(502).json({ error: e.message });
+      }
+    } else {
+      // Local fallback
+      localClipboard[cleanSlot] = text;
       return res.status(200).json({ ok: true });
-    } catch (e) {
-      return res.status(502).json({ error: e.message });
     }
   }
 
