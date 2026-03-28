@@ -1,11 +1,10 @@
 // Vercel Serverless Function — /api/clip
-// Storage: Vercel Blob. Set up via Vercel dashboard → Storage → Blob.
-// Required env vars (auto-injected when you link a Blob store):
-//   BLOB_READ_WRITE_TOKEN
+// Storage: Vercel Blob (private store).
+// Required env var: BLOB_READ_WRITE_TOKEN (auto-injected when you link the store)
 //
 // Max content size: 512 KB per slot (adjustable via MAX_BYTES below).
 
-import { put, list } from '@vercel/blob';
+const { put, list } = require('@vercel/blob');
 
 const MAX_BYTES = 512 * 1024; // 512 KB
 
@@ -13,7 +12,7 @@ function slotPath(slot) {
   return `clips/slot-${slot}.txt`;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -22,7 +21,8 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) {
     return res.status(500).json({ error: 'Blob store not configured. Add BLOB_READ_WRITE_TOKEN environment variable.' });
   }
 
@@ -32,11 +32,13 @@ export default async function handler(req, res) {
     if (!slot) return res.status(400).json({ error: 'Invalid slot.' });
 
     try {
-      const { blobs } = await list({ prefix: slotPath(slot) });
+      const { blobs } = await list({ prefix: slotPath(slot), token });
       if (!blobs.length) return res.status(200).json({ text: '' });
 
-      // Public blobs are readable via their URL without any auth token
-      const fetchRes = await fetch(blobs[0].url);
+      // Download the blob content using the token in the Authorization header
+      const fetchRes = await fetch(blobs[0].url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!fetchRes.ok) return res.status(200).json({ text: '' });
 
       const text = await fetchRes.text();
@@ -66,6 +68,7 @@ export default async function handler(req, res) {
         contentType: 'text/plain; charset=utf-8',
         allowOverwrite: true,
         addRandomSuffix: false,
+        token,
       });
       return res.status(200).json({ ok: true });
     } catch (e) {
@@ -74,7 +77,7 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ error: 'Method not allowed.' });
-}
+};
 
 function sanitizeSlot(raw) {
   // Accept only integers 1–20
