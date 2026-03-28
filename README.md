@@ -19,10 +19,10 @@ git push -u origin main
 
 Go to [vercel.com/new](https://vercel.com/new), import the repo, click **Deploy**.
 
-### 3. Add a KV Store (for persistent storage)
+### 3. Add a Blob Store (for persistent storage)
 
-1. In your Vercel project → **Storage** tab → **Create KV Database** → give it any name → **Create**.
-2. Vercel automatically injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` into your project's env vars.
+1. In your Vercel project → **Storage** tab → **Create Database** → choose **Blob** → give it any name → **Create**.
+2. Vercel automatically injects `BLOB_READ_WRITE_TOKEN` into your project's env vars.
 3. **Redeploy** the project once (just click "Redeploy" in the Deployments tab).
 
 That's it — your clipboard is live.
@@ -52,11 +52,10 @@ simplecopybot/
 
 | Variable | Description |
 |----------|-------------|
-| `KV_REST_API_URL` | Auto-set when you link a Vercel KV store |
-| `KV_REST_API_TOKEN` | Auto-set when you link a Vercel KV store |
+| `BLOB_READ_WRITE_TOKEN` | Auto-set when you link a Vercel Blob store |
 
 ## Limits
 
 - 512 KB max per slot (adjustable via `MAX_BYTES` in `api/clip.js`)
 - 5 slots (slots 1–20 are all valid via API)
-- Vercel KV free tier: 256 MB storage, 3,000 req/day — plenty for personal use
+- Vercel Blob free tier: 500 MB storage, 100 GB bandwidth/month — plenty for personal use

@@ -1,37 +1,19 @@
 // Vercel Serverless Function — /api/clip
-// Storage: Vercel KV (Redis). Set up via Vercel dashboard → Storage → KV.
-// Required env vars (auto-injected when you link a KV store):
-//   KV_REST_API_URL, KV_REST_API_TOKEN
+// Storage: Vercel Blob. Set up via Vercel dashboard → Storage → Blob.
+// Required env vars (auto-injected when you link a Blob store):
+//   BLOB_READ_WRITE_TOKEN
 //
 // Max content size: 512 KB per slot (adjustable via MAX_BYTES below).
 
+import { put, list, get } from '@vercel/blob';
+
 const MAX_BYTES = 512 * 1024; // 512 KB
 
-async function kvGet(key) {
-  const url = `${process.env.KV_REST_API_URL}/get/${encodeURIComponent(key)}`;
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}` }
-  });
-  if (!res.ok) throw new Error(`KV GET error: ${res.status}`);
-  const json = await res.json();
-  return json.result; // null if not set
-}
-
-async function kvSet(key, value) {
-  const url = `${process.env.KV_REST_API_URL}/set/${encodeURIComponent(key)}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(value)
-  });
-  if (!res.ok) throw new Error(`KV SET error: ${res.status}`);
+function slotPath(slot) {
+  return `clips/slot-${slot}.txt`;
 }
 
 export default async function handler(req, res) {
-  // CORS headers (restrict to same origin in production if desired)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -40,9 +22,8 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  // Validate KV env vars are present
-  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-    return res.status(500).json({ error: 'KV store not configured. Add KV_REST_API_URL and KV_REST_API_TOKEN environment variables.' });
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return res.status(500).json({ error: 'Blob store not configured. Add BLOB_READ_WRITE_TOKEN environment variable.' });
   }
 
   // ── GET /api/clip?slot=N ──────────────────────────────────────────────────
@@ -51,8 +32,15 @@ export default async function handler(req, res) {
     if (!slot) return res.status(400).json({ error: 'Invalid slot.' });
 
     try {
-      const text = await kvGet(`clip:${slot}`);
-      return res.status(200).json({ text: text ?? '' });
+      const { blobs } = await list({ prefix: slotPath(slot) });
+      if (!blobs.length) return res.status(200).json({ text: '' });
+
+      // Fetch the blob content via its URL (private blobs require the token)
+      const result = await get(blobs[0].url, { access: 'private' });
+      if (!result) return res.status(200).json({ text: '' });
+
+      const text = await new Response(result.stream).text();
+      return res.status(200).json({ text });
     } catch (e) {
       return res.status(502).json({ error: e.message });
     }
@@ -73,7 +61,12 @@ export default async function handler(req, res) {
     }
 
     try {
-      await kvSet(`clip:${cleanSlot}`, text);
+      await put(slotPath(cleanSlot), text, {
+        access: 'private',
+        contentType: 'text/plain; charset=utf-8',
+        allowOverwrite: true,
+        addRandomSuffix: false,
+      });
       return res.status(200).json({ ok: true });
     } catch (e) {
       return res.status(502).json({ error: e.message });
