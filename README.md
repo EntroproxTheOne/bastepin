@@ -1,4 +1,4 @@
-# SimpleCopyBot
+# Bastepin
 
 A minimal remote clipboard — paste text on one device, retrieve it on another. No login required.
 
@@ -11,7 +11,7 @@ git init
 git add .
 git commit -m "init"
 # create a repo on github.com, then:
-git remote add origin https://github.com/YOUR_USER/simplecopybot.git
+git remote add origin https://github.com/YOUR_USER/bastepin.git
 git push -u origin main
 ```
 
@@ -39,7 +39,7 @@ That's it — your clipboard is live.
 ## Structure
 
 ```
-simplecopybot/
+bastepin/
 ├── index.html       ← the entire frontend (single page)
 ├── api/
 │   └── clip.js      ← serverless API (GET + POST)

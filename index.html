@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SimpleCopyBot</title>
+  <title>Bastepin</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,447 +13,336 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #0f0f13;
-      color: #e2e8f0;
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      /* Liquid blue-white animated gradient */
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd, #ddd6fe, #f5f3ff);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #0f172a;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
       padding: 24px;
     }
 
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Liquid Glass Card */
     .card {
       width: 100%;
       max-width: 680px;
-      background: #1a1a24;
-      border: 1px solid #2d2d40;
-      border-radius: 14px;
+      /* Glassmorphism */
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 20px;
       padding: 32px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 40px -10px rgba(31, 38, 135, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    /* Decorative glass orbs behind card */
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      z-index: -1;
+      filter: blur(60px);
+      animation: float 10s ease-in-out infinite;
+    }
+
+    body::before {
+      background: rgba(99, 102, 241, 0.4);
+      top: 10%;
+      left: 20%;
+    }
+
+    body::after {
+      background: rgba(56, 189, 248, 0.4);
+      bottom: 10%;
+      right: 20%;
+      animation-delay: -5s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
     }
 
     header {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
       margin-bottom: 28px;
     }
 
     .logo {
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 22px;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      color: white;
     }
 
     h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #1e293b;
     }
 
-    h1 span { color: #818cf8; }
+    h1 span { 
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
     .slot-row {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 16px;
       flex-wrap: wrap;
     }
 
+    /* Uiverse-inspired slot buttons */
     .slot-btn {
       flex: 1;
       min-width: 80px;
-      padding: 8px 12px;
-      border: 1px solid #2d2d40;
-      border-radius: 8px;
-      background: #12121a;
-      color: #94a3b8;
-      font-size: 0.82rem;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.3);
+      color: #64748b;
+      font-size: 0.85rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .slot-btn:hover { border-color: #6366f1; color: #c7d2fe; }
-    .slot-btn.active { border-color: #6366f1; background: #1e1b4b; color: #a5b4fc; font-weight: 600; }
+    .slot-btn:hover { 
+      background: rgba(255, 255, 255, 0.6);
+      color: #3b82f6; 
+      transform: translateY(-2px);
+    }
+
+    .slot-btn.active { 
+      background: #3b82f6; 
+      color: white; 
+      border-color: #3b82f6;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      transform: scale(1.03); 
+    }
 
     textarea {
       width: 100%;
       height: 260px;
-      background: #12121a;
-      border: 1px solid #2d2d40;
-      border-radius: 10px;
-      color: #e2e8f0;
-      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      color: #0f172a;
+      font-size: 1rem;
       font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
-      padding: 16px;
+      padding: 18px;
       resize: vertical;
       outline: none;
-      transition: border-color 0.15s;
+      transition: all 0.3s ease;
       line-height: 1.6;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
     }
 
-    textarea:focus { border-color: #6366f1; }
-    textarea::placeholder { color: #4a4a6a; }
+    textarea:focus { 
+      background: rgba(255, 255, 255, 0.8);
+      border-color: #3b82f6; 
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    textarea::placeholder { color: #64748b; }
 
     .char-count {
-      font-size: 0.75rem;
-      color: #4a4a6a;
+      font-size: 0.8rem;
+      color: #64748b;
       text-align: right;
-      margin-top: 6px;
-      margin-bottom: 16px;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
     }
 
     .btn-row {
       display: flex;
-      gap: 10px;
-    }
-
-    button {
-      flex: 1;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 9px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-    }
-
-    .btn-save {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #fff;
-    }
-
-    .btn-save:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-save:active { transform: translateY(0); }
-
-    .btn-load {
-      background: #1e1b4b;
-      color: #a5b4fc;
-      border: 1px solid #3730a3;
-    }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #008080;
-      color: #222;
-      font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif;
-      padding: 24px;
-    }
-      border: 1px solid #7f1d1d;
-    .card {
-      width: 100%;
-      max-width: 600px;
-      background: #c0c0c0;
-      border: 2px solid #fff;
-      border-bottom-color: #808080;
-      border-right-color: #808080;
-      box-shadow: 2px 2px 0 #0008;
-      padding: 0;
-    }
-      transform: none !important;
-    .titlebar {
-      background: linear-gradient(to bottom, #000080 90%, #3a6ea5 100%);
-      color: #fff;
-      font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif;
-      font-size: 1rem;
-      font-weight: bold;
-      padding: 4px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2px solid #808080;
-      letter-spacing: 0.5px;
-      user-select: none;
-    }
-    }
-    .titlebar .logo {
-      width: 18px;
-      height: 18px;
-      margin-right: 8px;
-      background: #fff;
-      border: 1px solid #808080;
-      display: inline-block;
-      vertical-align: middle;
-      border-radius: 2px;
-      text-align: center;
-      font-size: 13px;
-      color: #000080;
-      font-weight: bold;
-      line-height: 18px;
-    }
-
-    .titlebar .window-controls {
-      display: flex;
-      gap: 2px;
-    }
-    .titlebar .window-btn {
-      width: 18px;
-      height: 18px;
-      background: #c0c0c0;
-      border: 2px outset #fff;
-      color: #222;
-      font-size: 13px;
-      font-family: inherit;
-      padding: 0;
-      cursor: pointer;
-      line-height: 14px;
-      text-align: center;
-    }
-    .titlebar .window-btn:active {
-      border-style: inset;
-    }
-    .toast {
-    .notepad-menu {
-      background: #e0e0e0;
-      border-bottom: 1px solid #808080;
-      padding: 2px 0 2px 4px;
-      font-size: 0.95rem;
-      user-select: none;
-    }
-    .notepad-menu span {
-      margin-right: 18px;
-      color: #222;
-      cursor: default;
-    }
-      position: fixed;
-    .notepad-main {
-      padding: 16px 18px 10px 18px;
-    }
-      bottom: 28px;
-    .slot-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
+      gap: 12px;
       flex-wrap: wrap;
     }
-      left: 50%;
-    .slot-btn, .btn-save, .btn-load, .btn-copy, .btn-clear, button {
-      font-family: inherit;
-      font-size: 0.95rem;
-      padding: 2px 18px 2px 18px;
-      margin: 0 2px 0 0;
-      background: #e0e0e0;
-      border: 2px outset #fff;
-      color: #222;
-      border-radius: 0;
-      box-shadow: none;
-      cursor: pointer;
-      min-width: 60px;
-      min-height: 24px;
-      transition: none;
-    }
-    .slot-btn:active, .btn-save:active, .btn-load:active, .btn-copy:active, .btn-clear:active, button:active {
-      border-style: inset;
-    }
-    .slot-btn.active {
-      background: #c0c0c0;
-      border-style: inset;
-      color: #000;
-      font-weight: bold;
-    }
-      transform: translateX(-50%) translateY(80px);
-    textarea {
-      width: 100%;
-      height: 260px;
-      background: #fff;
-      border: 2px inset #808080;
-      color: #222;
-      font-size: 1rem;
-      font-family: 'Courier New', Courier, monospace;
-      padding: 8px;
-      resize: vertical;
-      outline: none;
-      line-height: 1.5;
-      margin-bottom: 6px;
-    }
-    textarea:focus { border-color: #000080; }
-    textarea::placeholder { color: #888; }
-      background: #1e1b4b;
-    .char-count {
-      font-size: 0.75rem;
-      color: #4a4a6a;
-      text-align: right;
-      margin-top: 6px;
-      margin-bottom: 16px;
-    }
-      border: 1px solid #4338ca;
-    .btn-row {
-      display: flex;
-      gap: 10px;
-    }
-      color: #c7d2fe;
+
     button {
       flex: 1;
-      padding: 12px 20px;
+      min-width: 100px;
+      padding: 14px 20px;
       border: none;
-      border-radius: 9px;
-      font-size: 0.9rem;
-      font-weight: 600;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
     }
-      padding: 10px 22px;
-    .btn-save {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #fff;
-    }
-      border-radius: 50px;
-    .btn-save:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-save:active { transform: translateY(0); }
-      font-size: 0.85rem;
-    .btn-load {
-      background: #1e1b4b;
-      color: #a5b4fc;
-      border: 1px solid #3730a3;
-    }
-      font-weight: 500;
-    .btn-load:hover { background: #2a2560; }
-      pointer-events: none;
-    .btn-copy {
-      background: #1a2a1a;
-      color: #86efac;
-      border: 1px solid #166534;
-    }
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
-    .btn-copy:hover { background: #1f381f; }
-      opacity: 0;
-    .btn-clear {
-      background: #1a1214;
-      color: #f87171;
-      border: 1px solid #7f1d1d;
-      flex: 0 0 auto;
-      padding: 12px 16px;
-    }
-      white-space: nowrap;
-    .btn-clear:hover { background: #2a1515; }
-    }
+
     button:disabled {
-      opacity: 0.45;
+      opacity: 0.6;
       cursor: not-allowed;
       transform: none !important;
+    }
+
+    /* Uiverse Shine effect */
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: all 0.5s ease;
+    }
+
+    button:hover::after {
+      left: 100%;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: white;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      flex: 2;
+    }
+
+    .btn-save:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+    .btn-save:active { transform: translateY(1px); }
+
+    .btn-load {
+      background: rgba(255, 255, 255, 0.7);
+      color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .btn-load:hover { 
+      background: rgba(255, 255, 255, 1); 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+    }
+
+    .btn-copy {
+      background: rgba(241, 245, 249, 0.7);
+      color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .btn-copy:hover { 
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+    }
+
+    .btn-clear {
+      background: rgba(254, 226, 226, 0.5);
+      color: #ef4444;
+      border: 1px solid rgba(254, 202, 202, 0.6);
+      flex: 0 0 auto;
+      padding: 14px 18px;
+    }
+
+    .btn-clear:hover { 
+      background: #fee2e2; 
+      transform: scale(1.05);
     }
 
     .status-bar {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-bottom: 14px;
-      font-size: 0.78rem;
-      color: #4a4a6a;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 500;
     }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+    }
+
+    .dot.online { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+    .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+    .dot.error { background: #ef4444; }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); } 
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Glass Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      color: #0f172a;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      pointer-events: none;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+      opacity: 0;
+      white-space: nowrap;
+      z-index: 50;
+    }
+
     .toast.show {
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #4a4a6a;
-    }
       transform: translateX(-50%) translateY(0);
-    .dot.online { background: #22c55e; }
-    .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
-    .dot.error { background: #ef4444; }
       opacity: 1;
-    @keyframes pulse {
-      0%,100% { opacity: 1; } 50% { opacity: 0.3; }
-    }
-    }
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
     .toast.error {
-      background: #2a1515;
-      border-color: #991b1b;
-      color: #fca5a5;
+      background: rgba(254, 226, 226, 0.9);
+      border-color: rgba(252, 165, 165, 0.5);
+      color: #b91c1c;
     }
-  <div class="titlebar">
-    <span><span class="logo">N</span>Untitled - Notepad</span>
-    <div class="window-controls">
-      <button class="window-btn" title="Minimize">&#8211;</button>
-      <button class="window-btn" title="Maximize">&#9723;</button>
-      <button class="window-btn" title="Close">&#10005;</button>
-    </div>
-  </div>
-  <div class="notepad-menu">
-    <span>File</span><span>Edit</span><span>Search</span><span>Help</span>
-  </div>
-  <div class="notepad-main">
-    <div class="slot-row" id="slotRow">
-      <button class="slot-btn active" data-slot="1">Slot 1</button>
-      <button class="slot-btn" data-slot="2">Slot 2</button>
-      <button class="slot-btn" data-slot="3">Slot 3</button>
-      <button class="slot-btn" data-slot="4">Slot 4</button>
-      <button class="slot-btn" data-slot="5">Slot 5</button>
-    </div>
-
-    <textarea id="content" placeholder="Paste your text here, then click Save. On another device, click Load to retrieve it."></textarea>
-
-    <div class="char-count" id="charCount">0 characters</div>
-
-    <div class="btn-row">
-      <button class="btn-save" id="btnSave" onclick="saveClip()">Save</button>
-      <button class="btn-load" id="btnLoad" onclick="loadClip()">Load</button>
-      <button class="btn-copy" id="btnCopy" onclick="copyToClipboard()">Copy</button>
-      <button class="btn-clear" onclick="clearContent()" title="Clear">Clear</button>
-    </div>
-    <div class="status-bar" style="margin-top:10px; font-size:0.92rem; color:#444;">
-      <span id="statusText">Ready</span>
-    </div>
-  </div>
-      font-size: 0.78rem;
-      color: #4a4a6a;
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #4a4a6a;
-    }
-
-    .dot.online { background: #22c55e; }
-    .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
-    .dot.error { background: #ef4444; }
-
-    @keyframes pulse {
-      0%,100% { opacity: 1; } 50% { opacity: 0.3; }
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -462,7 +351,7 @@
   <header>
     <div class="logo">📋</div>
     <div>
-      <h1>Simple<span>CopyBot</span></h1>
+      <h1>Baste<span>pin</span></h1>
     </div>
   </header>
 
@@ -548,6 +437,7 @@
 
   function setLoading(id, loading) {
     const btn = document.getElementById(id);
+    if (!btn) return;
     if (loading) {
       btn._orig = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span>';
